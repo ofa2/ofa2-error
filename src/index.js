@@ -26,6 +26,7 @@ function lift(errorMap) {
   });
 
   global.Errors = Errors;
+  return Errors;
 }
 
 export default lift;

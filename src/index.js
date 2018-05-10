@@ -19,8 +19,9 @@ function buildErrorType(errorConfig, errorName) {
   return ConcreteCustomError;
 }
 
-function lift() {
-  this.config.errors.forEach((errorConfig, errorName) => {
+function lift(errorMap) {
+  Object.keys(errorMap).forEach((errorName) => {
+    let errorConfig = errorMap[errorName];
     Errors[errorName] = buildErrorType(errorConfig, errorName);
   });
 

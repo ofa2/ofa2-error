@@ -1,2 +1,34 @@
-"use strict";function _interopDefault(r){return r&&"object"==typeof r&&"default"in r?r.default:r}var util=_interopDefault(require("util"));function Errors(){}function buildErrorType(r,t){function e(e,o){Error.captureStackTrace(this,this.constructor),this.name=t||this.constructor.name,this.message=o||r.message,this.extra=e,this.code=r.code}return util.inherits(e,Errors),e}function lift(r){return Object.keys(r).forEach(t=>{let e=r[t];Errors[t]=buildErrorType(e,t)}),global.Errors=Errors,Errors}util.inherits(Errors,Error),module.exports=lift;
+'use strict';
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var util = _interopDefault(require('util'));
+
+function Errors() {}
+
+util.inherits(Errors, Error);
+
+function buildErrorType(errorConfig, errorName) {
+  function ConcreteCustomError(extra, message) {
+    Error.captureStackTrace(this, this.constructor);
+    this.name = errorName || this.constructor.name;
+    this.message = message || errorConfig.message;
+    this.extra = extra;
+    this.code = errorConfig.code;
+  }
+
+  util.inherits(ConcreteCustomError, Errors);
+  return ConcreteCustomError;
+}
+
+function lift(errorMap) {
+  Object.keys(errorMap).forEach(errorName => {
+    let errorConfig = errorMap[errorName];
+    Errors[errorName] = buildErrorType(errorConfig, errorName);
+  });
+  global.Errors = Errors;
+  return Errors;
+}
+
+module.exports = lift;
 //# sourceMappingURL=bundle.cjs.js.map

@@ -1,2 +1,30 @@
-import util from"util";function Errors(){}function buildErrorType(r,t){function o(o,i){Error.captureStackTrace(this,this.constructor),this.name=t||this.constructor.name,this.message=i||r.message,this.extra=o,this.code=r.code}return util.inherits(o,Errors),o}function lift(r){return Object.keys(r).forEach(t=>{let o=r[t];Errors[t]=buildErrorType(o,t)}),global.Errors=Errors,Errors}util.inherits(Errors,Error);export default lift;
+import util from 'util';
+
+function Errors() {}
+
+util.inherits(Errors, Error);
+
+function buildErrorType(errorConfig, errorName) {
+  function ConcreteCustomError(extra, message) {
+    Error.captureStackTrace(this, this.constructor);
+    this.name = errorName || this.constructor.name;
+    this.message = message || errorConfig.message;
+    this.extra = extra;
+    this.code = errorConfig.code;
+  }
+
+  util.inherits(ConcreteCustomError, Errors);
+  return ConcreteCustomError;
+}
+
+function lift(errorMap) {
+  Object.keys(errorMap).forEach(errorName => {
+    let errorConfig = errorMap[errorName];
+    Errors[errorName] = buildErrorType(errorConfig, errorName);
+  });
+  global.Errors = Errors;
+  return Errors;
+}
+
+export default lift;
 //# sourceMappingURL=bundle.esm.js.map

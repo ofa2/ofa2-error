@@ -4,10 +4,14 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var util = _interopDefault(require('util'));
 
-function Errors() {}
+function OperationalError() {
+  Error.call(this);
+}
 
-if (!('response' in Errors.prototype)) {
-  Object.defineProperty(Errors.prototype, 'response', {
+util.inherits(OperationalError, Error);
+
+if (!('response' in OperationalError.prototype)) {
+  Object.defineProperty(OperationalError.prototype, 'response', {
     value() {
       let alt = {};
       Object.getOwnPropertyNames(this).forEach(key => {
@@ -15,6 +19,8 @@ if (!('response' in Errors.prototype)) {
           alt[key] = this[key];
         }
       });
+      alt.errcode = alt.code;
+      alt.errmsg = alt.message;
       return alt;
     },
 
@@ -23,30 +29,27 @@ if (!('response' in Errors.prototype)) {
   });
 }
 
-util.inherits(Errors, Error);
-
-function buildErrorType(errorConfig, errorName) {
+function buildErrorType(defaultMessage, code) {
   function ConcreteCustomError(extra, message) {
     Error.captureStackTrace(this, this.constructor);
-    this.name = errorName || this.constructor.name;
-    this.message = message || errorConfig.message;
-    this.extra = extra; // use attribute 'error' and 'code' to confirm return a CustomerError
-
-    this.error = this.message;
-    this.code = errorConfig.code;
+    this.name = code || this.constructor.name;
+    this.message = message || defaultMessage;
+    this.extra = extra;
+    this.code = code;
   }
 
-  util.inherits(ConcreteCustomError, Errors);
+  util.inherits(ConcreteCustomError, OperationalError);
   return ConcreteCustomError;
 }
 
-function lift(errorMap) {
-  Object.keys(errorMap).forEach(errorName => {
-    let errorConfig = errorMap[errorName];
-    Errors[errorName] = buildErrorType(errorConfig, errorName);
+function lift(errors) {
+  let result = {};
+  Object.keys(errors).forEach(code => {
+    let message = errors[code];
+    result[code] = buildErrorType(message, code);
   });
-  global.Errors = Errors;
-  return Errors;
+  result.OperationalError = OperationalError;
+  return result;
 }
 
 module.exports = lift;
